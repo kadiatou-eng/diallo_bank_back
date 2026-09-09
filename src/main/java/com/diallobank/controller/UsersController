@@ -1,0 +1,24 @@
+package com.diallobank.controller;
+
+import com.diallobank.model.User;
+import com.diallobank.service.UserService;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@CrossOrigin(origins = "http://localhost:5173")
+@RestController
+@RequestMapping("/users")
+public class UsersController {
+
+    private final UserService userService;
+
+    public UsersController(UserService userService) {
+        this.userService = userService;
+    }
+
+    // ✅ GET : récupérer tous les utilisateurs
+    @GetMapping
+    public List<User> getUsers(@RequestParam String userId, @RequestParam String role) {
+        return userService.getUsers(userId, role);
+    }
+}

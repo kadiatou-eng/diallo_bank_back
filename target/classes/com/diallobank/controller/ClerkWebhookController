@@ -1,0 +1,38 @@
+package com.diallobank.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.json.JSONObject;
+
+@RestController
+@RequestMapping("/clerk")
+public class ClerkWebhookController {
+
+    private final UserService userService;
+
+    public ClerkWebhookController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping("/webhook")
+    public ResponseEntity<String> handleWebhook(@RequestBody String payload) {
+        JSONObject event = new JSONObject(payload);
+        String type = event.getString("type");
+
+        if ("user.created".equals(type)) {
+            JSONObject data = event.getJSONObject("data");
+            String userId = data.getString("id");
+            String email = data.getJSONArray("email_addresses")
+                               .getJSONObject(0)
+                               .getString("email_address");
+
+            // ✅ Attribuer automatiquement un rôle par défaut
+            String role = "user";
+
+            // Insérer en DB avec userId + role
+            userService.createUser(userId, email, role);
+        }
+
+        return ResponseEntity.ok("Webhook processed");
+    }
+}
